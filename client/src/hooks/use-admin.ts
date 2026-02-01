@@ -5,7 +5,11 @@ export function useAdminLinks() {
   return useQuery({
     queryKey: [api.admin.listLinks.path],
     queryFn: async () => {
-      const res = await fetch(api.admin.listLinks.path, { credentials: "include" });
+      const auth = sessionStorage.getItem("admin_auth");
+      const res = await fetch(api.admin.listLinks.path, { 
+        headers: { "Authorization": `Bearer *#*#fileshare#*#*` },
+        credentials: "include" 
+      });
       if (!res.ok) throw new Error("Failed to fetch links");
       return api.admin.listLinks.responses[200].parse(await res.json());
     }
@@ -19,7 +23,10 @@ export function useCreateLink() {
       const validated = api.admin.createLink.input.parse(data);
       const res = await fetch(api.admin.createLink.path, {
         method: api.admin.createLink.method,
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer *#*#fileshare#*#*`
+        },
         body: JSON.stringify(validated),
         credentials: "include"
       });
@@ -44,6 +51,7 @@ export function useDeleteLink() {
       const url = buildUrl(api.admin.deleteLink.path, { id });
       const res = await fetch(url, { 
         method: api.admin.deleteLink.method,
+        headers: { "Authorization": `Bearer *#*#fileshare#*#*` },
         credentials: "include" 
       });
       
@@ -59,7 +67,10 @@ export function useAdminAds() {
   return useQuery({
     queryKey: [api.admin.listAds.path],
     queryFn: async () => {
-      const res = await fetch(api.admin.listAds.path, { credentials: "include" });
+      const res = await fetch(api.admin.listAds.path, { 
+        headers: { "Authorization": `Bearer *#*#fileshare#*#*` },
+        credentials: "include" 
+      });
       if (!res.ok) throw new Error("Failed to fetch ads");
       return api.admin.listAds.responses[200].parse(await res.json());
     }
@@ -73,7 +84,10 @@ export function useCreateAd() {
       const validated = api.admin.createAd.input.parse(data);
       const res = await fetch(api.admin.createAd.path, {
         method: api.admin.createAd.method,
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer *#*#fileshare#*#*`
+        },
         body: JSON.stringify(validated),
         credentials: "include"
       });
@@ -95,6 +109,7 @@ export function useDeleteAd() {
       const url = buildUrl(api.admin.deleteAd.path, { id });
       const res = await fetch(url, { 
         method: api.admin.deleteAd.method,
+        headers: { "Authorization": `Bearer *#*#fileshare#*#*` },
         credentials: "include" 
       });
       
