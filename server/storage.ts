@@ -1,8 +1,11 @@
 import { 
   type Link, type InsertLink, 
   type Session, type InsertSession, 
-  type Ad, type InsertAd 
+  type Ad, type InsertAd,
+  links, sessions, ads
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
 import { randomBytes } from "crypto";
 
 export interface IStorage {
@@ -25,110 +28,96 @@ export interface IStorage {
   deleteAd(id: number): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private links: Map<string, Link>;
-  private sessions: Map<string, Session>;
-  private ads: Map<number, Ad>;
-  private adIdCounter: number;
-
-  constructor() {
-    this.links = new Map();
-    this.sessions = new Map();
-    this.ads = new Map();
-    this.adIdCounter = 1;
-  }
-
-  // Links
+export class DatabaseStorage implements IStorage {
   async getLink(id: string): Promise<Link | undefined> {
-    return this.links.get(id);
+    const [link] = await db.select().from(links).where(eq(links.id, id));
+    return link;
   }
 
   async getLinks(): Promise<Link[]> {
-    return Array.from(this.links.values());
+    return await db.select().from(links);
   }
 
   async createLink(insertLink: InsertLink): Promise<Link> {
     const id = insertLink.id || randomBytes(4).toString('hex');
-    const link: Link = {
+    const [link] = await db.insert(links).values({
       ...insertLink,
       id,
       views: 0,
       active: true,
-      createdAt: new Date()
-    };
-    this.links.set(id, link);
+    }).returning();
     return link;
   }
 
   async deleteLink(id: string): Promise<void> {
-    this.links.delete(id);
+    await db.delete(links).where(eq(links.id, id));
   }
 
   async incrementLinkViews(id: string): Promise<void> {
-    const link = this.links.get(id);
+    const link = await this.getLink(id);
     if (link) {
-      link.views++;
-      this.links.set(id, link);
+      await db.update(links)
+        .set({ views: link.views + 1 })
+        .where(eq(links.id, id));
     }
   }
 
-  // Sessions
   async getSession(id: string): Promise<Session | undefined> {
-    return this.sessions.get(id);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, id));
+    return session;
   }
 
   async createSession(insertSession: InsertSession): Promise<Session> {
     const id = insertSession.id || randomBytes(16).toString('hex');
-    const session: Session = {
+    const [session] = await db.insert(sessions).values({
       ...insertSession,
       id,
       step: 1,
       verifiedSteps: [],
-      createdAt: new Date()
-    };
-    this.sessions.set(id, session);
+    }).returning();
     return session;
   }
 
   async updateSessionStep(id: string, step: number): Promise<Session> {
-    const session = this.sessions.get(id);
+    const [session] = await db.update(sessions)
+      .set({ step })
+      .where(eq(sessions.id, id))
+      .returning();
     if (!session) throw new Error("Session not found");
-    
-    session.step = step;
-    this.sessions.set(id, session);
     return session;
   }
 
   async addVerifiedStep(id: string, step: number): Promise<Session> {
-    const session = this.sessions.get(id);
+    const session = await this.getSession(id);
     if (!session) throw new Error("Session not found");
     
-    if (!session.verifiedSteps.includes(step)) {
-      session.verifiedSteps.push(step);
+    const verifiedSteps = [...session.verifiedSteps];
+    if (!verifiedSteps.includes(step)) {
+      verifiedSteps.push(step);
     }
-    this.sessions.set(id, session);
-    return session;
+    
+    const [updatedSession] = await db.update(sessions)
+      .set({ verifiedSteps })
+      .where(eq(sessions.id, id))
+      .returning();
+    return updatedSession;
   }
 
-  // Ads
   async getAds(): Promise<Ad[]> {
-    return Array.from(this.ads.values());
+    return await db.select().from(ads);
   }
 
   async createAd(insertAd: InsertAd): Promise<Ad> {
-    const id = this.adIdCounter++;
-    const ad: Ad = {
+    const [ad] = await db.insert(ads).values({
       ...insertAd,
-      id,
       active: true
-    };
-    this.ads.set(id, ad);
+    }).returning();
     return ad;
   }
 
   async deleteAd(id: number): Promise<void> {
-    this.ads.delete(id);
+    await db.delete(ads).where(eq(ads.id, id));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
