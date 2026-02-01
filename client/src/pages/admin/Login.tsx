@@ -15,7 +15,7 @@ export default function AdminLogin() {
     e.preventDefault();
     // Simple client-side check for the MVP as requested
     // In production, this should be a real auth mutation
-    if (password === "#*#fileshare#*#*") {
+    if (password === "*#*#fileshare#*#*") {
       sessionStorage.setItem("admin_auth", "true");
       setLocation("/admin/dashboard");
       toast({

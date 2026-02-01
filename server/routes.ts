@@ -31,7 +31,6 @@ export async function registerRoutes(
       const session = await storage.createSession({
         id: randomBytes(16).toString('hex'),
         linkId: link.id,
-        linkId: link.id,
         expiresAt,
         step: 1
       });
