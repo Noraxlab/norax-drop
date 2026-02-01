@@ -161,11 +161,12 @@ export async function registerRoutes(
       const input = api.admin.createLink.input.parse(req.body);
       const link = await storage.createLink(input);
       res.status(201).json(link);
-    } catch (err) {
+    } catch (err: any) {
+      console.error("Error creating link:", err);
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message });
       }
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({ message: "Internal Server Error: " + err.message });
     }
   });
 

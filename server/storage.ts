@@ -40,6 +40,10 @@ export class DatabaseStorage implements IStorage {
 
   async createLink(insertLink: InsertLink): Promise<Link> {
     const id = insertLink.id || randomBytes(4).toString('hex');
+    const [existing] = await db.select().from(links).where(eq(links.id, id));
+    if (existing) {
+      throw new Error(`Link with ID "${id}" already exists`);
+    }
     const [link] = await db.insert(links).values({
       ...insertLink,
       id,
