@@ -8,7 +8,6 @@ export function useInitSession() {
       const url = buildUrl(api.initSession.path, { id: linkId });
       const res = await fetch(url, { 
         method: api.initSession.method,
-        credentials: "include" 
       });
       
       if (!res.ok) {
@@ -29,7 +28,6 @@ export function useVerifyStep() {
         method: api.verifyStep.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validated),
-        credentials: "include"
       });
 
       if (!res.ok) {
@@ -49,7 +47,7 @@ export function useFinalUrl(sessionId: string | null) {
     queryFn: async () => {
       if (!sessionId) return null;
       const url = buildUrl(api.getFinalUrl.path, { sessionId });
-      const res = await fetch(url, { credentials: "include" });
+      const res = await fetch(url);
       
       if (!res.ok) {
         if (res.status === 410) throw new Error("Session expired");
@@ -68,7 +66,7 @@ export function useAds() {
   return useQuery({
     queryKey: [api.getAds.path],
     queryFn: async () => {
-      const res = await fetch(api.getAds.path, { credentials: "include" });
+      const res = await fetch(api.getAds.path);
       if (!res.ok) throw new Error("Failed to fetch ads");
       return api.getAds.responses[200].parse(await res.json());
     }

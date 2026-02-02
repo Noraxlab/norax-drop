@@ -8,7 +8,6 @@ export function useAdminLinks() {
       const auth = sessionStorage.getItem("admin_auth");
       const res = await fetch(api.admin.listLinks.path, { 
         headers: { "Authorization": `Bearer *#*#fileshare#*#*` },
-        credentials: "include" 
       });
       if (!res.ok) throw new Error("Failed to fetch links");
       return api.admin.listLinks.responses[200].parse(await res.json());
@@ -28,7 +27,6 @@ export function useCreateLink() {
           "Authorization": `Bearer *#*#fileshare#*#*`
         },
         body: JSON.stringify(validated),
-        credentials: "include"
       });
       
       if (!res.ok) {
@@ -52,7 +50,6 @@ export function useDeleteLink() {
       const res = await fetch(url, { 
         method: api.admin.deleteLink.method,
         headers: { "Authorization": `Bearer *#*#fileshare#*#*` },
-        credentials: "include" 
       });
       
       if (!res.ok) throw new Error("Failed to delete link");
@@ -89,7 +86,6 @@ export function useCreateAd() {
           "Authorization": `Bearer *#*#fileshare#*#*`
         },
         body: JSON.stringify(validated),
-        credentials: "include"
       });
       
       if (!res.ok) throw new Error("Failed to create ad");
@@ -110,7 +106,6 @@ export function useDeleteAd() {
       const res = await fetch(url, { 
         method: api.admin.deleteAd.method,
         headers: { "Authorization": `Bearer *#*#fileshare#*#*` },
-        credentials: "include" 
       });
       
       if (!res.ok) throw new Error("Failed to delete ad");
