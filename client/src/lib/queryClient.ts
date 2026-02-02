@@ -7,8 +7,8 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-// Use the Render backend URL here
-const BACKEND_URL = "https://your-render-app-url.onrender.com";
+// Use the Replit public domain as the backend URL for now
+const BACKEND_URL = window.location.origin;
 
 export async function apiRequest(
   method: string,
