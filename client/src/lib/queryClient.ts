@@ -7,8 +7,8 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-// Use the Replit public domain as the backend URL for now
-const BACKEND_URL = window.location.origin;
+// Use the Render backend URL here
+const BACKEND_URL = "https://norax-drop-backend.onrender.com";
 
 export async function apiRequest(
   method: string,
